@@ -14,8 +14,8 @@ let verse1 n =
 
 let verse2 n =
     match n with
-    | 1 -> sprintf "Take it down and pass it around, %s of beer on the wall." (numToBottles n)
-    | 0 -> sprintf "Go to the store and buy some more, 99 bottles of beer on the wall."
+    | 0 -> sprintf "Take it down and pass it around, %s of beer on the wall." (numToBottles n)
+    | -1 -> sprintf "Go to the store and buy some more, 99 bottles of beer on the wall."
     | _ -> sprintf "Take one down and pass it around, %s of beer on the wall." (numToBottles n)
 
 let verse (startBottles: int) =
@@ -23,8 +23,10 @@ let verse (startBottles: int) =
       (verse2 (startBottles - 1)) |]
 
 let recite (startBottles: int) (takeDown: int) =
+    let endBottles = startBottles-takeDown+1
     let recite' = seq {
-        for n in [startBottles..(-1)..(startBottles-takeDown+1)] do
+        for n in [startBottles..(-1)..(endBottles)] do
             yield! verse n
+            if n > endBottles then yield ""
         }
     recite' |> Seq.toList
