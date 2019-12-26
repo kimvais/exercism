@@ -4,13 +4,20 @@ open System
 
 let numToBottles n =
     match n with
-    | 0 -> "No more bottles"
+    | 0 -> "no more bottles"
     | 1 -> "1 bottle"
     | x -> sprintf "%d bottles" x
 
+// If it's stupid but it works...
+let upperBottles s =
+    match s with
+    | s when s = "no more bottles" -> "No more bottles"
+    | _ -> s
+    
 let verse1 n =
     let bottles = numToBottles n
-    sprintf "%s of beer on the wall, %s of beer." bottles bottles
+    let upperbottles = upperBottles bottles
+    sprintf "%s of beer on the wall, %s of beer." upperbottles bottles
 
 let verse2 n =
     match n with
