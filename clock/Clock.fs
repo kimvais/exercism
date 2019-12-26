@@ -1,9 +1,33 @@
 module Clock
 
-let create hours minutes = failwith "You need to implement this function."
+let div x y =
+    y / float x
 
-let add minutes clock = failwith "You need to implement this function."
+let normalize clock =
+    let ret = clock % (24 * 60)
+    if ret < 0 then 24 * 60 + ret
+    else ret
 
-let subtract minutes clock = failwith "You need to implement this function."
+let div60 = div 60.0
 
-let display clock = failwith "You need to implement this function."
+let create hours minutes =
+    (hours * 60 + minutes) |> normalize
+
+let add minutes clock =
+    clock + minutes |> normalize
+
+
+let subtract minutes clock =
+    clock - minutes |> normalize
+
+let display (clock: int) =
+    let hours =
+        clock
+        |> (float
+            >> div60
+            >> floor
+            >> int)
+        |> (fun x -> x % 24)
+
+    let minutes = clock % 60
+    sprintf "%02d:%02d" hours minutes
