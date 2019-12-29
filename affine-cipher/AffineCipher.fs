@@ -18,30 +18,25 @@ let createCodec f m a =
     | Some a' -> f a'
     | None -> raise (System.ArgumentException(sprintf "%d and %d are not co-primes" a m))
 
-let E m a b x =
+let encoder m a b x =
     let f _ = (a * x + b) % m
     createCodec f m a
 
-let D m a b x =
+let decoder m a b x =
     let f a' =
         let ret = (a' * (x - b)) % m
+        // F# chose to keep the bug in .NET that modulo of a negative number is negative, need to work around that...
         match ret with
         | n when n < 0 -> n + m
         | _ -> ret
     createCodec f m a
 
-let toLower (c: string) =
-    c.ToLower()
-
 let cleanUp (text: string) =
+    let toLower (c: string) =
+        c.ToLower()
     text
     |> toLower
     |> String.filter (fun c -> System.Char.IsLower(c) || System.Char.IsDigit(c))
-
-let handleChar codec c =
-    charToInt
-    >> codec
-    >> intToChar
 
 let postProcess (chars: seq<char>) =
     chars
@@ -49,29 +44,23 @@ let postProcess (chars: seq<char>) =
     |> Seq.map (fun f -> f |> System.String.Concat)
     |> String.concat " "
 
+let handleChar codec c =
+    match c with
+    | t when t >= '0' && '9' >= t -> t
+    | t ->
+        t
+        |> (charToInt
+            >> codec
+            >> intToChar)
+
 let decode a b cipheredText =
-    let decoder = D 26 a b
-    let decode' =
-        (charToInt
-         >> decoder
-         >> intToChar)
     cipheredText
     |> cleanUp
-    |> Seq.map decode'
+    |> Seq.map (handleChar (decoder 26 a b))
     |> System.String.Concat
 
 let encode a b plainText =
-    let encoder = E 26 a b
-
-    let encode' c =
-        match c with
-        | t when t >= '0' && '9' >= t -> t
-        | t ->
-            t
-            |> (charToInt
-                >> encoder
-                >> intToChar)
     plainText
     |> cleanUp
-    |> Seq.map encode'
+    |> Seq.map (handleChar (encoder 26 a b))
     |> postProcess
