@@ -15,15 +15,19 @@ let tryFindMMI m a =
 
 let createCodec f m a =
     match tryFindMMI m a with
-    | Some i -> f i
+    | Some a' -> f a'
     | None -> raise (System.ArgumentException(sprintf "%d and %d are not co-primes" a m))
 
 let E m a b x =
     let f _ = (a * x + b) % m
     createCodec f m a
 
-let D m a b y =
-    let f a' = (a' * (y - b)) % m
+let D m a b x =
+    let f a' =
+        let ret = (a' * (x - b)) % m
+        match ret with
+        | n when n < 0 -> n + m
+        | _ -> ret
     createCodec f m a
 
 let toLower (c: string) =
@@ -47,12 +51,13 @@ let postProcess (chars: seq<char>) =
 
 let decode a b cipheredText =
     let decoder = D 26 a b
-    cipheredText
-    |> cleanUp
-    |> Seq.map
+    let decode' =
         (charToInt
          >> decoder
          >> intToChar)
+    cipheredText
+    |> cleanUp
+    |> Seq.map decode'
     |> System.String.Concat
 
 let encode a b plainText =
@@ -61,7 +66,11 @@ let encode a b plainText =
     let encode' c =
         match c with
         | t when t >= '0' && '9' >= t -> t
-        | t -> t |> (charToInt >> encoder >> intToChar)
+        | t ->
+            t
+            |> (charToInt
+                >> encoder
+                >> intToChar)
     plainText
     |> cleanUp
     |> Seq.map encode'
