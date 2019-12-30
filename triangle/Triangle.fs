@@ -1,7 +1,18 @@
 ﻿module Triangle
 
-let equilateral triangle = failwith "You need to implement this function."
+let istriangle sides =
+    (sides |> Seq.sum) > (2.0 * (sides |> Seq.max))
 
-let isosceles triangle = failwith "You need to implement this function."
+let evaluate f triangle = 
+    istriangle triangle && (f <| (triangle
+                             |> Seq.distinct
+                             |> Seq.length))
+    
+let equilateral triangle =
+    evaluate ((=) 1) triangle
 
-let scalene triangle = failwith "You need to implement this function."
+let isosceles triangle =
+    evaluate ((>) 3) triangle
+
+let scalene triangle =
+    evaluate ((=) 3) triangle
