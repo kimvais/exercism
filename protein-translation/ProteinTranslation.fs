@@ -17,7 +17,7 @@ let getProtein codon =
 let proteins (rna: string) =
     rna
     |> Seq.chunkBySize 3
-    |> Seq.map (fun s -> s |> System.String.Concat |> getProtein)
-    |> Seq.takeWhile (fun p -> p <> STOP)
+    |> Seq.map (System.String >> getProtein)
+    |> Seq.takeWhile ((<>) STOP)
     |> Seq.map (fun c -> c.ToString())
     |> Seq.toList
