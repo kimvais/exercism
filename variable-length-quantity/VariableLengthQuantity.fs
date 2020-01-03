@@ -56,14 +56,14 @@ let splitBy f input =
 
 let decode (s: seq<byte>) =
     let numbers = splitBy (fun n -> n &&& 0x80uy = 1uy) s
-    seq {
+    let ret = seq {
         for n in numbers do
             match n |> Seq.tryFind (lastByte) with
-            | None -> failwith "Non-terminating sequence"
-            | Some _ -> 
-                let values = Seq.rev n |> Seq.mapi calcByteVal
-                values |> Seq.sum
+            | None -> None
+            | Some _ -> Seq.rev n |> Seq.mapi calcByteVal |> Seq.sum |> Some
     }
-    |> Seq.toList
-    |> Some
+    match ret |> Seq.exists ((=) None) with
+    | false -> ret |> Seq.map (Option.get) |> Seq.toList |> Some
+    | true -> None
+    
 // s |> Seq.takeWhile moreBytesFollow
