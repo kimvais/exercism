@@ -45,17 +45,12 @@ let calcByteVal i b =
 
 let lastByte = moreBytesFollow >> not
 
-// Taken from https://stackoverflow.com/a/6737659/180174
-let splitBy f input =
-    let i = ref 0
-    input
-    |> Seq.groupBy (fun x ->
-        if f x then incr i
-        !i)
-    |> Seq.map snd
-
+let splitAfter _ input =
+    // TODO: Implement
+    [input]
+    
 let decode (s: seq<byte>) =
-    let numbers = splitBy (fun n -> n &&& 0x80uy = 1uy) s
+    let numbers = splitAfter lastByte s 
     let ret = seq {
         for n in numbers do
             match n |> Seq.tryFind (lastByte) with
