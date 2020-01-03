@@ -45,20 +45,16 @@ let calcByteVal i b =
 
 let lastByte = moreBytesFollow >> not
 
-let splitAfter _ input =
-    // TODO: Implement
-    [input]
+let rec split (bytes : seq<byte>) =
+    let input = List.ofSeq bytes
+    let heads = input |> List.takeWhile (lastByte >> not)
+    match input |> List.skip (heads |> List.length) with
+    | last::rest -> [heads @ [last]] @ split rest
+    | _ -> []
     
 let decode (s: seq<byte>) =
-    let numbers = splitAfter lastByte s 
-    let ret = seq {
-        for n in numbers do
-            match n |> Seq.tryFind (lastByte) with
-            | None -> None
-            | Some _ -> Seq.rev n |> Seq.mapi calcByteVal |> Seq.sum |> Some
-    }
-    match ret |> Seq.exists ((=) None) with
-    | false -> ret |> Seq.map (Option.get) |> Seq.toList |> Some
-    | true -> None
+    match s |> Seq.tryFind (lastByte) with
+        | None -> None
+        | Some _ -> split s |> Seq.map (fun n -> Seq.rev n |> Seq.mapi calcByteVal |> Seq.sum) |> Seq.toList |> Some
     
 // s |> Seq.takeWhile moreBytesFollow
