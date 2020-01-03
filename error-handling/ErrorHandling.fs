@@ -13,9 +13,7 @@ let handleErrorByReturningResult (input: string) =
     with _ -> Error "Could not convert input to integer"
 
 let bind switchFunction twoTrackInput =
-    match twoTrackInput with
-    | Ok s -> switchFunction s
-    | Error e -> Error e
+    twoTrackInput |> Result.bind switchFunction
 
 let cleanupDisposablesWhenThrowingException resource =
     use x = resource
