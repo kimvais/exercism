@@ -1,22 +1,21 @@
 ﻿module KindergartenGarden
 
-type Plant = | Clover | Grass | Radishes | Violets
+type Plant = | Clover | Grass | Radishes | Violets 
 
-let students =
-    [ "Alice"; "Bob"; "Charlie"; "David"; "Eve"; "Fred"; "Ginny"; "Harriet"; "Ileana"; "Joseph"; "Kincaid"; "Larry" ]
+let getOffset student =
+    let students =
+        [ "Alice"; "Bob"; "Charlie"; "David"; "Eve"; "Fred"; "Ginny"; "Harriet"; "Ileana"; "Joseph"; "Kincaid"; "Larry" ]
+    (students |> List.findIndex ((=) student)) * 2
 
-let getPlant = function
+let getPlant =
+    function
     | 'C' -> Clover
     | 'G' -> Grass
     | 'R' -> Radishes
     | 'V' -> Violets
 
 let plants (diagram: string) student =
-    let rows = diagram.Split '\n'
-    let i = (students |> List.findIndex ((=) student)) * 2
-    // If it's stupid but it works...
-    [ rows.[0].[i]
-      rows.[0].[i + 1]
-      rows.[1].[i]
-      rows.[1].[i + 1] ]
-    |> List.map getPlant
+    diagram.Split '\n'
+    |> Seq.collect (Seq.skip (getOffset student) >> Seq.take 2)
+    |> Seq.map getPlant
+    |> List.ofSeq
