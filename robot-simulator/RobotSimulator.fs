@@ -13,8 +13,7 @@ type Robot =
       position: Position }
 
 let turn direction robot =
-    { direction = direction
-      position = robot.position }
+    { robot with direction = direction }
 
 let turnLeft r =
     match r.direction with
@@ -29,26 +28,22 @@ let turnRight r =
     | East -> turn South r
     | South -> turn West r
     | West -> turn North r
-    
+
 let advance robot =
     let d = robot.direction
     let (x, y) = robot.position
     match d with
     | North ->
-        { direction = d
-          position = (x, y + 1) }
+        { robot with position = (x, y + 1) }
     | East ->
-        { direction = d
-          position = (x + 1, y) }
+        { robot with position = (x + 1, y) }
     | South ->
-        { direction = d
-          position = (x, y - 1) }
+        { robot with position = (x, y - 1) }
     | West ->
-        { direction = d
-          position = (x - 1, y) }
+        { robot with position = (x - 1, y) }
 
 let doStep robot c =
-    match c with 
+    match c with
     | 'L' -> turnLeft robot
     | 'R' -> turnRight robot
     | 'A' -> advance robot
