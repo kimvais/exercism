@@ -1,7 +1,14 @@
 ﻿module DifferenceOfSquares
 
-let squareOfSum (number: int): int = failwith "You need to implement this function."
+let pow2 x =
+    pown x 2
 
-let sumOfSquares (number: int): int = failwith "You need to implement this function."
+let squareOfSum (number: int): int =
+    [ 1 .. number ] |> Seq.sum |> pow2
 
-let differenceOfSquares (number: int): int = failwith "You need to implement this function."
+let sumOfSquares (number: int): int =
+    [ 1 .. number ] |> Seq.sumBy pow2
+
+let fork f g h a = h (f a) (g a)
+
+let differenceOfSquares = fork squareOfSum sumOfSquares (-)
