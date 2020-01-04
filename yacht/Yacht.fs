@@ -31,28 +31,26 @@ let getScore =
     | Five -> 5
     | Six -> 6
 
-let isValid (throws: Die list) =
-    List.length throws = 5
+// This isn't part of test suite
+let isValid (dice: Die list) =
+    match List.length dice = 5 with
+    | true -> dice
+    | false -> failwith "Need 5 dice"
 
 let countDice dice =
     List.groupBy (id) dice |> List.map (fun (i, s) -> (List.length s, i))
-
-let getDiceWithCount count dice =
-    countDice dice |> List.filter (fun d -> fst d = count)
 
 let scoreNOfKind n dice =
     let setsOfN = countDice dice |> List.filter (fun (c, _) -> c >= n)
     match setsOfN with
     | s when List.isEmpty s -> 0
-    | s ->
-        s
+    | _ ->
+        setsOfN
         |> List.maxBy fst
         |> (fun (_, d) -> n * getScore d)
 
-let scoreNumbers cat =
-    List.filter ((=) cat)
-    >> List.length
-    >> (*) (getScore cat)
+let scoreNumbers category =
+    List.filter ((=) category) >> List.sumBy getScore
 
 let scoreYacht dice =
     match countDice dice |> List.tryExactlyOne with
@@ -67,24 +65,27 @@ let scoreStraight range dice =
     | false -> 0
 
 let scoreFullHouse dice =
-    let diceCounts = countDice dice
     match countDice dice
           |> List.map fst
           |> Set.ofList = set [ 2; 3 ] with
-    | true -> diceCounts |> List.sumBy (fun (c, d) -> c * getScore d)
+    | true ->
+        dice
+        |> List.map getScore
+        |> List.sum
     | false -> 0
 
-let score category dice =
-    match category with
-    | Yacht -> scoreYacht dice
-    | Ones -> (scoreNumbers One) dice
-    | Twos -> (scoreNumbers Two) dice
-    | Threes -> (scoreNumbers Three) dice
-    | Fours -> (scoreNumbers Four) dice
-    | Fives -> (scoreNumbers Five) dice
-    | Sixes -> (scoreNumbers Six) dice
-    | Choice -> dice |> List.sumBy getScore
-    | LittleStraight -> (scoreStraight [ 1 .. 5 ]) dice
-    | BigStraight -> (scoreStraight [ 2 .. 6 ]) dice
-    | FourOfAKind -> scoreNOfKind 4 dice
-    | FullHouse -> scoreFullHouse dice
+let score category =
+    isValid
+    >> match category with
+       | Yacht -> scoreYacht
+       | Ones -> scoreNumbers One
+       | Twos -> scoreNumbers Two
+       | Threes -> scoreNumbers Three
+       | Fours -> scoreNumbers Four
+       | Fives -> scoreNumbers Five
+       | Sixes -> scoreNumbers Six
+       | Choice -> List.sumBy getScore
+       | LittleStraight -> scoreStraight [ 1 .. 5 ]
+       | BigStraight -> scoreStraight [ 2 .. 6 ]
+       | FourOfAKind -> scoreNOfKind 4
+       | FullHouse -> scoreFullHouse
