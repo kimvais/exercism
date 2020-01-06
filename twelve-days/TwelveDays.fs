@@ -11,20 +11,15 @@ let gifts =
       "five Gold Rings, "
       "four Calling Birds, "
       "three French Hens, "
-      "two Turtle Doves, "
-      "and a Partridge in a Pear Tree." ]
+      "two Turtle Doves, and "
+      "a Partridge in a Pear Tree." ]
 
 let cardinals =
-    [ "second"; "third"; "fourth"; "fifth"; "sixth"; "seventh"; "eighth"; "ninth"; "tenth"; "eleventh"; "twelfth" ]
+    [ "first"; "second"; "third"; "fourth"; "fifth"; "sixth"; "seventh"; "eighth"; "ninth"; "tenth"; "eleventh"; "twelfth" ]
 
 let getVerse n =
-    match n with
-    | 1 -> "On the first day of Christmas my true love gave to me: a Partridge in a Pear Tree."
-    | _ ->
-        sprintf "On the %s day of Christmas my true love gave to me: %s" cardinals.[n - 2]
-            (gifts
-             |> Seq.skip (12 - n)
-             |> System.String.Concat)
+    sprintf "On the %s day of Christmas my true love gave to me: %s" cardinals.[n - 1]
+        (gifts.[12 - n..] |> List.reduce (+))
 
 let recite start stop =
     [ start .. stop ] |> List.map getVerse
