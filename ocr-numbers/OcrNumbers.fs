@@ -20,7 +20,7 @@ let convert (rows: string list) =
         None
     else
         Seq.zip (Seq.zip rows.[0] rows.[1]) (Seq.zip rows.[2] rows.[3])
-        |> Seq.map (fun ((a, b), (c, d)) -> [ a; b; c; d ] |> System.String.Concat)
+        |> Seq.map (fun ((a, b), (c, d)) -> sprintf "%c%c%c%c" a b c d)
         |> Seq.chunkBySize 3
         |> Seq.map (Seq.reduce (+))
         |> Seq.map (fun l ->
