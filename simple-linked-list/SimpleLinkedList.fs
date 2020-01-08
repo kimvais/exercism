@@ -5,12 +5,10 @@ type LinkedList<'a> =
     | Nil
     | Node of datum: 'a * next: LinkedList<'a>
 
-
 let nil = Nil
 
 let create x n =
     Node(x, n)
-
 
 let next: LinkedList<'a> -> LinkedList<'a> =
     function
