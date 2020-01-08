@@ -1,15 +1,17 @@
 ﻿module Matrix
 
-let make (s: string) =
-    s.Split('\n')
-    |> Array.map (fun s ->
-        (s.Split(' ')
-         |> Array.map int
-         |> Array.toList))
-    |> Array.toList
+let split (c: char) (s: string) = s.Split(c)
 
-let row index matrix =
-    (make matrix).[index - 1]
+let parseStringToMatrix =
+    split '\n'
+    >> Array.map
+        (split ' '
+         >> Array.map int
+         >> Array.toList)
+    >> Array.toList
+
+let row index m =
+    (parseStringToMatrix m).[index - 1]
 
 let column index matrix =
-    make matrix |> List.map (fun row -> row.[index - 1])
+    parseStringToMatrix matrix |> List.map (fun row -> row.[index - 1])
