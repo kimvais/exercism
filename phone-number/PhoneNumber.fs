@@ -5,9 +5,11 @@ open System.Text.RegularExpressions
 
 type Code = | AREA = 0 | EXCHANGE = 3
 
-let sanitize =
+let sanitize s =
     let charsToStrip = set "+() .-"
-    String.filter (fun c -> (not (charsToStrip.Contains c))) >> Ok
+    let shouldCharBeKept c =
+        charsToStrip.Contains c |> not
+    s |> String.filter shouldCharBeKept |> Ok
 
 let validateNoLetters s =
     match String.forall (Char.IsLetter >> not) s with
@@ -43,11 +45,11 @@ let convertToUInt64 s =
     | "" -> Error "not a valid phone number"
     | x -> Ok (uint64 x)
     
-let clean: string -> Result<uint64, string> =
-    sanitize 
-    >> Result.bind validateLength
-    >> Result.bind validateNoLetters
-    >> Result.bind validateOnlyDigits
-    >> Result.bind (validateCode Code.AREA)
-    >> Result.bind (validateCode Code.EXCHANGE)
-    >> Result.bind convertToUInt64
+let clean (s: string): Result<uint64, string> =
+    sanitize s
+    |> Result.bind validateLength
+    |> Result.bind validateNoLetters
+    |> Result.bind validateOnlyDigits
+    |> Result.bind (validateCode Code.AREA)
+    |> Result.bind (validateCode Code.EXCHANGE)
+    |> Result.bind convertToUInt64
