@@ -2,40 +2,71 @@
 
 
 type Suite =
-    | Hearts
-    | Spades
-    | Diamonds
     | Clubs
+    | Diamonds
+    | Spades
+    | Hearts
 
 type Value =
-    | Ace = 14
-    | King = 13
-    | Queen = 12
-    | Jack = 11
-    | Ten = 10
-    | Nine = 9
-    | Eight = 8
-    | Seven = 7
-    | Six = 6
-    | Five = 5
-    | Four = 4
-    | Three = 3
-    | Two = 2
+    | Two
+    | Three
+    | Four
+    | Five
+    | Six
+    | Seven
+    | Eight
+    | Nine
+    | Ten
+    | Jack
+    | Queen
+    | King
+    | Ace
 
 
 type Card = { Value: Value; Suite: Suite }
 
-type Hand = Hand of Card array
+type Hand' = Hand' of Card array
 
-let parseCard (s: string) =
+type StraightFlush = { High: Card }
+type FourOfAKind = { Value: Value; Kicker: Card }
+type FullHouse = { Triplet: Value; Pair: Value }
+type Flush = { High: Card; Kickers: Card array }
+type Straight = { High: Value }
+type ThreeOfAKind = { Triplet: Value; Kickers: Card array }
+type TwoPair = { HighPair: Value; LowPair: Value; Kicker: Value }
+type Pair = { Pair: Value; Kickers: Card array }
+type HighCard = { High: Value; Kickers: Card array }
+
+
+
+
+type Hand =
+    | StraightFlush of StraightFlush
+    | FourOfAKind of FourOfAKind
+    | FullHouse of FullHouse
+    | Flush of Flush
+    | Straight of Straight
+    | ThreeOfAKind of ThreeOfAKind
+    | TwoPair of TwoPair
+    | Pair of Pair
+    | HighCard of HighCard
+
+let parseCard (s: string): Card =
     let (value: Value) =
         match s.[0] with
-        | 'A' -> Value.Ace
-        | 'K' -> Value.King
-        | 'Q' -> Value.Queen
-        | 'J' -> Value.Jack
-        | 'T' -> enum<Value> 10
-        | n -> n |> string |> int |> enum<Value>
+        | 'A' -> Ace
+        | 'K' -> King
+        | 'Q' -> Queen
+        | 'J' -> Jack
+        | 'T' -> Ten
+        | '2' -> Two
+        | '3' -> Three
+        | '4' -> Four
+        | '5' -> Five
+        | '6' -> Six
+        | '7' -> Seven
+        | '8' -> Eight
+        | '9' -> Nine
 
     let suite =
         match s.[1] with
@@ -47,10 +78,13 @@ let parseCard (s: string) =
 
     { Value = value; Suite = suite }
 
-let formatCard c = $"<%A{c.Value} of %A{c.Suite}>"
+let formatCard (c: Card) = $"<%A{c.Value} of %A{c.Suite}>"
 
 let parseHand (h: string) =
     let hand =
-        h.Split ' ' |> Seq.map parseCard |> Seq.sortBy (fun c -> c.Value) |> Seq.rev
+        h.Split ' '
+        |> Seq.map parseCard
+        |> Seq.sortBy (fun c -> c.Value)
+        |> Seq.rev
 
     hand |> Seq.iter (formatCard >> printfn "%s")
