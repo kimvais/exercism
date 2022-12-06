@@ -1,0 +1,29 @@
+{
+  "authors": [
+    "ErikSchierboom"
+  ],
+  "contributors": [
+    "jrr",
+    "lestephane",
+    "robkeim",
+    "valentin-p",
+    "wolf99"
+  ],
+  "files": {
+    "solution": [
+      "House.fs"
+    ],
+    "test": [
+      "HouseTests.fs"
+    ],
+    "example": [
+      ".meta/Example.fs"
+    ],
+    "invalidator": [
+      "House.fsproj"
+    ]
+  },
+  "blurb": "Output the nursery rhyme 'This is the House that Jack Built'.",
+  "source": "British nursery rhyme",
+  "source_url": "http://en.wikipedia.org/wiki/This_Is_The_House_That_Jack_Built"
+}
