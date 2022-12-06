@@ -23,7 +23,9 @@ let input =
       "ate"
       "the malt"
       "lay in"
-      ] 
+      "the house"
+      "Jack built."
+      ] |> List.chunkBySize 2 |> List.rev
 
 
 let preample = sprintf "This is %s"
@@ -31,13 +33,15 @@ let preample = sprintf "This is %s"
 
 let verse (a, b) = sprintf "%s that %s" a b
 
-let rec reciteVerse v x =
-    match x with
-    | 0 -> preample v
-    | n ->
-        let noun = input.[n]
-        let verb = input.[n - 1]
-        reciteVerse $"%s{verse (noun, verb)} %s{v}" (n - 1)
+let rec reciteVerse acc verses =
+    match verses with
+    | [] -> $"This is%s{acc}"
+    | [[n;v]] -> reciteVerse $" %s{n} that %s{v}%s{acc}" []
+    | l ->
+        let [n;v] = List.head l
+        reciteVerse $" %s{n} that %s{v}%s{acc}" (List.tail l)
+    
+
     
 let recite startVerse endVerse =
-    [startVerse .. endVerse] |> List.map (fun v -> reciteVerse "the house that Jack built." (v- 1))
+    [startVerse..endVerse] |> List.map (fun n -> reciteVerse "" (input |> List.take n ))
