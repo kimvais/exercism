@@ -14,7 +14,7 @@ let parseOutcome (row: string) =
           | [| a; b; "loss" |] ->
               yield b, (1, 1, 0, 0, 3)
               yield a, (1, 0, 0, 1, 0)
-          | _ -> failwith "Invalid result %s" row ]
+          | _ -> failwith (sprintf "Invalid result %s" row) ]
 
 let scoreFolder (mp, w, d, l, p) (mp', w', d', l', p') = mp+mp', w + w', d + d', l + l', p + p'
 
