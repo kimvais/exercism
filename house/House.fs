@@ -38,9 +38,8 @@ let rec reciteVerse acc verses =
     | [] -> $"This is%s{acc}"
     | [[n;v]] -> reciteVerse $" %s{n} that %s{v}%s{acc}" []
     | l ->
-        let [n;v] = List.head l
+        let n,v  = List.head (List.head l), List.last (List.head l)
         reciteVerse $" %s{n} that %s{v}%s{acc}" (List.tail l)
-    
 
     
 let recite startVerse endVerse =
