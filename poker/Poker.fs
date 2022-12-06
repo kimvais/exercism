@@ -8,7 +8,7 @@ type Suite =
     | Hearts
 
 type Value =
-    | Two
+    | Deuce
     | Three
     | Four
     | Five
@@ -23,35 +23,64 @@ type Value =
     | Ace
 
 
-type Card = { Value: Value; Suite: Suite }
+type Card = Value * Suite
 
-type Hand' = Hand' of Card array
+type Hand = Card array
 
-type StraightFlush = { High: Card }
-type FourOfAKind = { Value: Value; Kicker: Card }
-type FullHouse = { Triplet: Value; Pair: Value }
-type Flush = { High: Card; Kickers: Card array }
-type Straight = { High: Value }
-type ThreeOfAKind = { Triplet: Value; Kickers: Card array }
-type TwoPair = { HighPair: Value; LowPair: Value; Kicker: Value }
-type Pair = { Pair: Value; Kickers: Card array }
-type HighCard = { High: Value; Kickers: Card array }
+type PokerHand =
+    | HighCard
+    | Pair
+    | TwoPair
+    | ThreeOfAKind
+    | Straight
+    | Flush
+    | FullHouse
+    | FourOfAKind
+    | StraightFlush
 
+let getValue card =
+    fst card
+    |> function
+        | Ace -> 14
+        | King -> 13
+        | Queen -> 12
+        | Jack -> 11
+        | Ten -> 10
+        | Nine -> 9
+        | Eight -> 8
+        | Seven -> 7
+        | Six -> 6
+        | Five -> 5
+        | Four -> 4
+        | Three -> 3
+        | Deuce -> 2
 
+let isFlush (h: Hand) = (h |> Array.map snd |> Set.ofSeq |> Set.count) = 1
 
+let isStraight (h: Hand) =
+    let values = h |> Array.map getValue
 
-type Hand =
-    | StraightFlush of StraightFlush
-    | FourOfAKind of FourOfAKind
-    | FullHouse of FullHouse
-    | Flush of Flush
-    | Straight of Straight
-    | ThreeOfAKind of ThreeOfAKind
-    | TwoPair of TwoPair
-    | Pair of Pair
-    | HighCard of HighCard
+    Array.sort values
+    |> Seq.pairwise
+    |> Seq.forall (fun (a, b) -> b - a = 1)
+    || (Array.sortDescending values = [| 14; 5; 4; 3; 2 |])
 
-let parseCard (s: string): Card =
+let isStraightFlush h = isStraight h && isFlush h
+
+let hasGroups groups h =
+    (h |> Array.countBy fst |> Array.map snd |> Array.sortDescending) = groups
+
+let isFourOfAKind = hasGroups [| 4; 1 |]
+
+let isFullHouse = hasGroups [| 3; 2 |]
+
+let isThreeOfAKind = hasGroups [| 3; 1; 1 |]
+
+let isTwoPair = hasGroups [| 2; 2; 1 |]
+
+let isPair = hasGroups [| 2; 1; 1; 1 |]
+
+let parseCard (s: string) : Card =
     let (value: Value) =
         match s.[0] with
         | 'A' -> Ace
@@ -59,7 +88,7 @@ let parseCard (s: string): Card =
         | 'Q' -> Queen
         | 'J' -> Jack
         | 'T' -> Ten
-        | '2' -> Two
+        | '2' -> Deuce
         | '3' -> Three
         | '4' -> Four
         | '5' -> Five
@@ -67,6 +96,7 @@ let parseCard (s: string): Card =
         | '7' -> Seven
         | '8' -> Eight
         | '9' -> Nine
+        | _ -> failwith "Unrecognized value"
 
     let suite =
         match s.[1] with
@@ -76,15 +106,47 @@ let parseCard (s: string): Card =
         | 'C' -> Clubs
         | _ -> failwith "Unrecognized suite"
 
-    { Value = value; Suite = suite }
+    value, suite
 
-let formatCard (c: Card) = $"<%A{c.Value} of %A{c.Suite}>"
-
-let parseHand (h: string) =
+let parseHand (h: string) : Hand =
     let hand =
-        h.Split ' '
+        h.Replace("10", "T").Split ' '
         |> Seq.map parseCard
-        |> Seq.sortBy (fun c -> c.Value)
+        |> Seq.sortBy fst
         |> Seq.rev
 
-    hand |> Seq.iter (formatCard >> printfn "%s")
+    hand |> Array.ofSeq
+
+let getStraightValues h =
+    h
+    |> Array.map getValue
+    |> Array.map (function
+        | v when v = 14 -> 1
+        | v -> v)
+    |> Array.sortDescending
+
+let getValues h =
+    h
+    |> Array.groupBy fst
+    |> Array.sortByDescending (snd >> Array.length)
+    |> Array.map snd
+    |> Array.concat
+    |> Array.map getValue
+
+let rankHand =
+    function
+    | h when h |> isStraightFlush -> StraightFlush, getValues h
+    | h when h |> isFourOfAKind -> FourOfAKind, getValues h
+    | h when h |> isFullHouse -> FullHouse, getValues h
+    | h when h |> isFlush -> Flush, getValues h
+    | h when h |> isStraight -> Straight, getStraightValues h
+    | h when h |> isThreeOfAKind -> ThreeOfAKind, getValues h
+    | h when h |> isTwoPair -> TwoPair, getValues h
+    | h when h |> isPair -> Pair, getValues h
+    | h -> HighCard, getValues h
+
+let bestHands hands =
+    hands
+    |> List.groupBy (parseHand >> rankHand)
+    |> List.maxBy fst
+    |> snd
