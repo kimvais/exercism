@@ -10,12 +10,12 @@ let ``Verse one - the house that jack built`` () =
     let expected = ["This is the house that Jack built."]
     recite 1 1 |> should equal expected
 
-[<Fact(Skip = "Remove this Skip property to run this test")>]
+[<Fact>]
 let ``Verse two - the malt that lay`` () =
     let expected = ["This is the malt that lay in the house that Jack built."]
     recite 2 2 |> should equal expected
 
-[<Fact(Skip = "Remove this Skip property to run this test")>]
+[<Fact>]
 let ``Verse three - the rat that ate`` () =
     let expected = ["This is the rat that ate the malt that lay in the house that Jack built."]
     recite 3 3 |> should equal expected
